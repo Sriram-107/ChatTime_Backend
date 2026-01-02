@@ -1,36 +1,60 @@
-import sql from "mssql";
 import bcrypt from "bcryptjs";
+import User from "../models/user.model.js";
+import generateJWT from "../lib/utils.js";
 export const signupController = async (req, res) => {
   // Access user data
-  const { fullName = "", email, password = "" } = req.body;
+  const { name = "", email, password = "" } = req.body;
   try {
     // Check password length
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
     if (password.length < 6) {
       return res
         .status(400)
         .json({ message: "Password must be greater than 6" });
     }
-    // Check user exist
-    const request = new req.db.Request();
-    request.input("fullName", sql.VarChar, fullName);
-    request.input("email", sql.VarChar, email);
-    const queryText = `SELECT * FROM  chatTime.Users WHERE email = @email`;
-    const result = await request.query(queryText);
-    console.log(result.recordsets[0].length);
 
-    if (result.recordsets[0].length) {
-      return res.status(400).json({ message: "User already exists" });
+    // Check user exist in database
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
     }
+
     // hash password using bcrypt
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const passwordBuffer = Buffer.from(hashedPassword, "utf8");
-    request.input("password", sql.VarBinary, passwordBuffer);
     // 1233kk => eqkjkjI23;
-    const insertUserQuery = `INSERT INTO chatTime.Users(fullName,email,password) values(@fullName, @email,@password )`;
-    const newUser = await request.query(insertUserQuery);
-    console.log(newUser.recordsets);
-  } catch (error) {}
+    console.log(hashedPassword);
+
+    // Create new password
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+    console.log(newUser);
+
+    if (newUser) {
+      // generate jwt token
+      generateJWT(newUser._id, res);
+      await newUser.save();
+      return res.status(201).json({
+        name: newUser.name,
+        email: newUser.email,
+        password: newUser.password,
+      });
+    } else {
+      res.status(400).json({ message: "Invalid user data" });
+    }
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
   res.send("signup route");
 };
 
