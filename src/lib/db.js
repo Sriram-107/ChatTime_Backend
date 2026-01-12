@@ -11,6 +11,6 @@ export const dbConn = async () => {
     console.log(`DB Connection Successfull ${conn.connection.host}`);
   } catch (err) {
     console.error("DB connection failed:", err.message);
-    res.status(500).json({ error: "Database unavailable" });
+    // res.status(500).json({ error: "Database unavailable" });
   }
 };
