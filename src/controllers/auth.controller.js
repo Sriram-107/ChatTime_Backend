@@ -103,13 +103,14 @@ export const loginController = async (req, res) => {
 export const logoutController = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "User Logged Out" });
+    res.status(200).json({ message: "User Out" });
   } catch (error) {
     return res
       .status(500)
       .json({ message: `Internal Server Error ${error.message}` });
   }
 };
+
 
 export const updateProfileController = async (req, res) => {
   try {
@@ -140,4 +141,3 @@ export const checkAuthController = async (req, res) => {
       .status(500)
       .json({ message: `Internal Server Error ${error.message}` });
   }
-};
