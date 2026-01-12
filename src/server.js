@@ -1,9 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import pkg from "cookie-parser";
 import authRoutes from "./routes/auth.route.js";
 import { dbConn } from "./lib/db.js";
-dotenv.config();
+import messageRoute from "./routes/message.route.js";
 
 const PORT = process.env.SERVER_PORT;
 const app = express();
@@ -13,7 +14,7 @@ const cookieParser = pkg;
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/message", messageRoute);
 app.get("/", (req, res) => {
   res.send("Home");
 });

@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
-export default function protectedRoute(req, res, next) {
+export default async function protectedRoute(req, res, next) {
   try {
     // Get token from cookie
-    const token = req.cookie.jwt;
+    const token = req.cookies.jwt;
+    console.log(token);
 
     // Token is not present then unauthorised
     if (!token) {
@@ -19,7 +20,7 @@ export default function protectedRoute(req, res, next) {
     }
 
     // Find user present in db
-    const user = User.findOne(ecoded.userId).select("-password");
+    const user = await User.findById(decoded.userId).select("-password");
 
     // User not present error
     if (!user) {
@@ -28,6 +29,8 @@ export default function protectedRoute(req, res, next) {
     req.user = user;
     next();
   } catch (error) {
+    console.log(error);
+
     return res
       .status(500)
       .json({ message: `Internal Server Error ${error.message}` });
