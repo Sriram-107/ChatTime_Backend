@@ -102,7 +102,7 @@ export const loginController = async (req, res) => {
 export const logoutController = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "User Logged Out" });
+    res.status(200).json({ message: "User Out" });
   } catch (error) {
     return res
       .status(500)
@@ -112,4 +112,5 @@ export const logoutController = (req, res) => {
 
 export const updateProfile = () => {
   const { profilePic } = req.body;
+  console.log(profilePic);
 };
